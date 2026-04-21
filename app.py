@@ -379,4 +379,5 @@ if generate_btn:
 # RECIPE OUTPUT RENDERING
 # ─────────────────────────────────────────────
 recipe    = st.session_state.get("recipe")
-nutrition
+nutrition = st.session_state.get("nutrition")
+detected  = st.session_state.get("detected_ingredients")
