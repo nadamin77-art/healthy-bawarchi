@@ -47,12 +47,9 @@ else:
 # ─────────────────────────────────────────────
 st.markdown("""
 <style>
-    /* Background */
     .stApp {
         background: linear-gradient(135deg, #F1F8E9 0%, #E8F5E9 100%);
     }
-
-    /* Hero banner */
     .hero-banner {
         background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 50%, #388E3C 100%);
         border-radius: 20px;
@@ -81,8 +78,6 @@ st.markdown("""
         font-style: italic;
         margin-top: 0.3rem;
     }
-
-    /* Section cards */
     .section-card {
         background: white;
         border-radius: 16px;
@@ -97,8 +92,6 @@ st.markdown("""
         color: #1B5E20;
         margin-bottom: 0.8rem;
     }
-
-    /* Generate button */
     .stButton > button {
         background: linear-gradient(135deg, #1B5E20, #2E7D32) !important;
         color: white !important;
@@ -117,8 +110,6 @@ st.markdown("""
         transform: translateY(-2px) !important;
         box-shadow: 0 6px 20px rgba(27, 94, 32, 0.5) !important;
     }
-
-    /* Recipe output card */
     .recipe-output {
         background: white;
         border-radius: 16px;
@@ -127,8 +118,6 @@ st.markdown("""
         border-top: 5px solid #2E7D32;
         margin-top: 1.5rem;
     }
-
-    /* Cuisine pill badge */
     .cuisine-pill {
         display: inline-block;
         background: #E8F5E9;
@@ -141,8 +130,6 @@ st.markdown("""
         margin-right: 0.4rem;
         margin-bottom: 0.8rem;
     }
-
-    /* Tab styling */
     .stTabs [data-baseweb="tab-list"] {
         gap: 8px;
         background: #E8F5E9;
@@ -158,8 +145,6 @@ st.markdown("""
         background: #2E7D32 !important;
         color: white !important;
     }
-
-    /* Detected ingredients box */
     .detected-box {
         background: #E8F5E9;
         border: 1px solid #4CAF50;
@@ -169,24 +154,18 @@ st.markdown("""
         color: #1B5E20;
         margin: 0.5rem 0 1rem 0;
     }
-
-    /* Nutrition card */
     .nutrition-card {
         background: #F9FBE7;
         border-radius: 12px;
         padding: 1rem;
         border: 1px solid #C5E1A5;
     }
-
-    /* USDA badge */
     .usda-badge {
         font-size: 0.75rem;
         color: #388E3C;
         font-weight: 600;
         margin-top: 0.5rem;
     }
-
-        /* Language toggle button — override to be compact */
     div[data-testid="column"]:last-child .stButton > button {
         background: #E8F5E9 !important;
         color: #1B5E20 !important;
@@ -200,7 +179,6 @@ st.markdown("""
         white-space: nowrap !important;
         box-shadow: none !important;
     }
-    /* Footer */
     .footer {
         text-align: center;
         color: #777;
@@ -209,8 +187,6 @@ st.markdown("""
         padding-top: 1rem;
         border-top: 1px solid #ddd;
     }
-
-    /* Hide Streamlit default branding */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
@@ -224,7 +200,6 @@ col_title, col_toggle = st.columns([6, 1])
 with col_toggle:
     if st.button(t("lang_toggle"), key="lang_btn"):
         st.session_state["lang"] = "ur" if lang == "en" else "en"
-        # Clear recipe on language switch so output re-renders in new language
         st.session_state["recipe"] = None
         st.session_state["nutrition"] = None
         st.rerun()
@@ -241,7 +216,7 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # ─────────────────────────────────────────────
-# SIDEBAR — About & disclaimer
+# SIDEBAR
 # ─────────────────────────────────────────────
 with st.sidebar:
     st.markdown(f"### 🌿 {t('sidebar_settings')}")
@@ -291,7 +266,7 @@ st.caption(t("max_ingredients_caption", n=max_ingredients))
 st.markdown("</div>", unsafe_allow_html=True)
 
 # ─────────────────────────────────────────────
-# INGREDIENT INPUT — Text or Image tabs
+# INGREDIENT INPUT
 # ─────────────────────────────────────────────
 st.markdown(
     f'<div class="section-card"><div class="section-title">🥦 {t("what_ingredients")}</div>',
@@ -336,7 +311,7 @@ generate_btn = st.button(t("generate_btn"), use_container_width=True)
 # GENERATION LOGIC
 # ─────────────────────────────────────────────
 if generate_btn:
-    has_text  = bool(ingredients_text.strip())
+    has_text = bool(ingredients_text.strip())
     has_image = uploaded_image_bytes is not None
 
     if not has_text and not has_image:
@@ -354,7 +329,6 @@ if generate_btn:
                 recipe = generate_recipe(ingredients_text, cuisine, max_ingredients)
                 st.session_state["detected_ingredients"] = None
 
-            # Fetch USDA nutrition
             usda_key = st.secrets.get("USDA_API_KEY", "")
             nutrition = calculate_recipe_nutrition(
                 recipe.get("ingredients", []),
@@ -362,7 +336,7 @@ if generate_btn:
                 usda_key,
             )
 
-            st.session_state["recipe"]    = recipe
+            st.session_state["recipe"] = recipe
             st.session_state["nutrition"] = nutrition
 
         except Exception as e:
@@ -378,6 +352,121 @@ if generate_btn:
 # ─────────────────────────────────────────────
 # RECIPE OUTPUT RENDERING
 # ─────────────────────────────────────────────
-recipe    = st.session_state.get("recipe")
+recipe = st.session_state.get("recipe")
 nutrition = st.session_state.get("nutrition")
-detected  = st.session_state.get("detected_ingredients")
+detected = st.session_state.get("detected_ingredients")
+
+if recipe:
+    lang = get_lang()
+
+    if detected:
+        st.markdown(
+            f'<div class="detected-box">{t("photo_detected")}<br>{detected}</div>',
+            unsafe_allow_html=True,
+        )
+
+    st.markdown('<div class="recipe-output">', unsafe_allow_html=True)
+
+    name = recipe.get("recipe_name_ur" if lang == "ur" else "recipe_name", "")
+    desc = recipe.get("description_ur" if lang == "ur" else "description", "")
+    st.markdown(f"## 🥗 {name}")
+    st.markdown(f"*{desc}*")
+
+    prep = recipe.get("prep_time_min", "?")
+    cook = recipe.get("cook_time_min", "?")
+    servings = recipe.get("servings", "?")
+    st.markdown(
+        f'<span class="cuisine-pill">{cuisine_display}</span>'
+        f'<span class="cuisine-pill">⏱ {prep} {t("min_label")} {t("prep_label")}</span>'
+        f'<span class="cuisine-pill">🍳 {cook} {t("min_label")} {t("cook_label")}</span>'
+        f'<span class="cuisine-pill">🍽 {servings} {t("servings_label")}</span>',
+        unsafe_allow_html=True,
+    )
+
+    st.markdown("---")
+
+    col_ing, col_nut = st.columns([1.1, 0.9])
+
+    with col_ing:
+        st.markdown(f"### 🛒 {t('ingredients_header')}")
+        ingredients_list = recipe.get("ingredients", [])
+        total_pkr = 0
+        for ing in ingredients_list:
+            item = ing.get("item_ur" if lang == "ur" else "item", "")
+            qty = ing.get("quantity", "")
+            pkr = ing.get("price_pkr", 0)
+            total_pkr += pkr if isinstance(pkr, (int, float)) else 0
+            st.markdown(f"• **{item}** — {qty}  *(~PKR {pkr})*")
+        st.markdown(f"**{t('total_label')}: ~PKR {total_pkr}**")
+
+    with col_nut:
+        st.markdown(f"### 📊 {t('nutrition_header')}")
+        if nutrition:
+            cal = nutrition.get("calories", 0)
+            prot = nutrition.get("protein", 0)
+            carbs = nutrition.get("carbs", 0)
+            fat = nutrition.get("fat", 0)
+            fiber = nutrition.get("fiber", 0)
+            src_note = format_nutrition_source_note(nutrition)
+
+            st.markdown('<div class="nutrition-card">', unsafe_allow_html=True)
+            m1, m2 = st.columns(2)
+            m1.metric(t("calories_label"), f"{cal} kcal")
+            m2.metric(t("protein_label"), f"{prot}g")
+            m3, m4 = st.columns(2)
+            m3.metric(t("carbs_label"), f"{carbs}g")
+            m4.metric(t("fat_label"), f"{fat}g")
+            st.metric(t("fiber_label"), f"{fiber}g")
+            st.markdown(
+                f'<div class="usda-badge">{src_note}</div>',
+                unsafe_allow_html=True,
+            )
+            st.markdown("</div>", unsafe_allow_html=True)
+
+    st.markdown("---")
+
+    st.markdown(f"### 👨‍🍳 {t('instructions_header')}")
+    steps = recipe.get("instructions_ur" if lang == "ur" else "instructions", [])
+    for i, step in enumerate(steps, 1):
+        st.markdown(f"**{i}.** {step}")
+
+    st.markdown("---")
+
+    health = recipe.get("health_tips_ur" if lang == "ur" else "health_tips", "")
+    st.success(f"💚 **{t('health_header')}**\n\n{health}")
+
+    sustain = recipe.get("sustainability_tip_ur" if lang == "ur" else "sustainability_tip", "")
+    st.info(f"♻️ **{t('sustainability_header')}**\n\n{sustain}")
+
+    serving = recipe.get("serving_suggestions_ur" if lang == "ur" else "serving_suggestions", "")
+    st.markdown(f"🍽 **{t('serving_header')}:** {serving}")
+
+    closing = recipe.get("closing_remark", "")
+    st.markdown(
+        f'<div style="margin-top:1rem; padding:0.8rem 1rem; background:#E8F5E9; '
+        f'border-radius:10px; font-style:italic; color:#1B5E20;">'
+        f'💬 <strong>{t("closing_header")}:</strong> {closing}</div>',
+        unsafe_allow_html=True,
+    )
+
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    download_text = recipe_to_text(recipe, lang=lang)
+    st.download_button(
+        label=t("download_btn"),
+        data=download_text,
+        file_name=t("download_filename"),
+        mime="text/plain",
+        use_container_width=True,
+    )
+
+    st.caption(t("sidebar_disclaimer"))
+
+# ─────────────────────────────────────────────
+# FOOTER
+# ─────────────────────────────────────────────
+st.markdown(
+    f'<div class="footer">{t("footer")}</div>',
+    unsafe_allow_html=True,
+)
