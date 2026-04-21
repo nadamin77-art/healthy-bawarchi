@@ -186,7 +186,7 @@ st.markdown("""
         margin-top: 0.5rem;
     }
 
-    /* Language toggle button — override to be compact */
+        /* Language toggle button — override to be compact */
     div[data-testid="column"]:last-child .stButton > button {
         background: #E8F5E9 !important;
         color: #1B5E20 !important;
@@ -196,9 +196,10 @@ st.markdown("""
         font-size: 0.85rem !important;
         font-weight: 600 !important;
         width: auto !important;
+        min-width: 90px !important;
+        white-space: nowrap !important;
         box-shadow: none !important;
     }
-
     /* Footer */
     .footer {
         text-align: center;
